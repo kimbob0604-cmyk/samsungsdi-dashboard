@@ -50,9 +50,11 @@ const NI28=2.35;                              // 컨센서스 2028E 지배순이
 // SOKHA SOTP (조원)
 const SOTP={ebitda:7.027,nonop:5.599,nd:9.452,nci:3.933,pref:0.294,ampc:2.363};
 const eqv=m=>+(SOTP.ebitda*m+SOTP.nonop-SOTP.nd-SOTP.nci-SOTP.pref).toFixed(1);
-const SC={down:+(BPS*SH/1e8).toFixed(1),c20:+(NI28*20).toFixed(1),tgt:+(NI28*24).toFixed(1),exA:+((SOTP.ebitda-SOTP.ampc)*10.7+SOTP.nonop-SOTP.nd-SOTP.nci-SOTP.pref).toFixed(1),disc:+((SOTP.ebitda*10.7)/1.1+SOTP.nonop-SOTP.nd-SOTP.nci-SOTP.pref).toFixed(1),sk:eqv(10.7),skBull:eqv(12.8),broker:+(804000*SH/1e8).toFixed(1)};
+const AMPCY={y:['2027E (신한)','2028E (SOKHA)'],a:[1.136,2.363],o:[0.438,1.462]};
+const SC={down:+(BPS*SH/1e8).toFixed(1),c20:+(NI28*20).toFixed(1),tgt:+(NI28*24).toFixed(1),exA:+((SOTP.ebitda-SOTP.ampc)*10.7+SOTP.nonop-SOTP.nd-SOTP.nci-SOTP.pref).toFixed(1),disc:+((SOTP.ebitda*10.7)/1.1+SOTP.nonop-SOTP.nd-SOTP.nci-SOTP.pref).toFixed(1),sk:eqv(10.7),skBull:eqv(12.8),broker:+(804000*SH/1e8).toFixed(1),c24:+(NI28*24).toFixed(1)};
+SC.tgt=SC.sk;
 
-const PAGES=[['sum','요약'],['fin','실적'],['ess','ESS·미국'],['china','중국 배제'],['ups','UPS·BBU'],['dream','전고체(옵션)'],['sokha','SOKHA 점검'],['vs','KUVIC 비교'],['cons','컨센서스'],['val','밸류'],['px','주가·피어'],['pitch','5분 피칭'],['qa','예상 질의'],['src','출처']];
+const PAGES=[['sum','요약'],['fin','실적'],['ampc','AMPC'],['ess','ESS·미국'],['china','중국 배제'],['ups','UPS·BBU'],['dream','전고체(옵션)'],['cons','리포트·컨센서스'],['sokha','SOKHA 밸류'],['val','밸류'],['px','주가·피어'],['pitch','5분 피칭'],['qa','예상 질의'],['src','출처']];
 function nav(){const h=(location.hash||'#sum').slice(1);document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id===h));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.p===h));window.scrollTo(0,0);draw(h)}
 function card(h,cap,body){return `<div class="card">${h?`<h2>${h}</h2>`:''}${cap?`<p class="cap">${cap}</p>`:''}${body}</div>`}
 function kpi(l,v,s,go){return `<button class="kpi" onclick="location.hash='${go}'"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></button>`}
@@ -64,41 +66,64 @@ function build(){
  $('#tabs').innerHTML=PAGES.map(([k,n])=>`<a class="tab" data-p="${k}" href="#${k}">${n}</a>`).join('');
  let H='';
  /* 요약 */
- H+=`<section class="page" id="sum"><div class="page-head"><h1>삼성SDI (006400) · 매수</h1><p>미국 ESS를 각형 LFP로 단일화한 회사 · 전기차 바닥에서 ESS·데이터센터로 이익 구조가 바뀌는 구간 · 11/24 종가 ${nf(PX)}원</p></div>
+ H+=`<section class="page" id="sum"><div class="page-head"><h1>삼성SDI (006400) · 매수</h1><p>미국 현지 생산 세액공제(AMPC)가 이익의 본체가 되는 구간 · 미국 ESS를 각형 LFP로 공략 · 11/24 종가 ${nf(PX)}원</p></div>
  <div class="kpis">
  ${kpi('시가총액',fz(MC),'보통주 8,059만 주 · PBR 1.46배','val')}
- ${kpi('목표 시총 (2028E 순이익 × 24배)',fz(SC.tgt),`시총 애드 ${fa(add(SC.tgt))} (${pc(add(SC.tgt)/MC*100)})`,'val')}
+ ${kpi('목표 시총 (2028E EBITDA × 10.7배 SOTP)',fz(SC.tgt),`시총 애드 ${fa(add(SC.tgt))} (${pc(add(SC.tgt)/MC*100)})`,'val')}
  ${kpi('하방 (PBR 1.0배)',fz(SC.down),`${fa(add(SC.down))} (${pc(add(SC.down)/MC*100)})`,'val')}
- ${kpi('3Q26 매출 / 영업이익','4.69조 / 4,078억','YoY +53.5% · AMPC 1,225억 포함','fin')}
- ${kpi('미국 ESS CAPA','19 → 76GWh','2026 → 2028E (SOKHA)','ess')}
- ${kpi('UPS·BBU 매출','1.1 → 4.0조','2025 → 2028E (SOKHA)','ups')}
+ ${kpi('AMPC','1GWh당 약 630억','kWh당 $45 · 2027E 영업이익의 72%(신한)','ampc')}
+ ${kpi('미국 ESS CAPA','19 → 76GWh','2026 → 2028E (SOKHA) · 수주 60GWh+','ess')}
+ ${kpi('3Q26 영업이익','4,078억','AMPC 1,225억 · 4Q26E AMPC 1,990억(신한)','fin')}
  </div>
  <div class="two">
  ${card('한 장 요약','',`<table class="vs"><tbody>
  <tr><td>의견</td><td>매수 · 목표 시총 ${fz(SC.tgt)}(${fa(add(SC.tgt))}) · 하방 ${fz(SC.down)}(${fa(add(SC.down))}) · 위아래 ${nf(add(SC.tgt)/-add(SC.down),1)} : 1</td></tr>
- <tr><td>탑다운</td><td>미국 ESS 셀은 2025년 중국산이 약 70%. 관세·PFE·AMPC 소재 요건으로 2028년 비중국 80%로 바뀜(SOKHA). 미국 ESS의 약 94%가 각형. 2026 상반기 북미 ESS 출하 중국 71.2%, LGES+SDI 19.7%(KUVIC)</td></tr>
- <tr><td>포인트 1</td><td><b>ESS·AMPC:</b> 2026.10 미국 각형 LFP 양산 개시. 미국 CAPA 19 → 76GWh, 수주 60GWh+. 비중국 양극재 조달 계약으로 AMPC 요건 선점</td></tr>
- <tr><td>포인트 2</td><td><b>UPS·BBU:</b> 리튬 UPS 점유율 약 50%·재계약 90%+. BBU용 21700 탭리스 셀 2026.7 가장 먼저 양산</td></tr>
- <tr><td>배제 의지</td><td>관세 25%+12.5% · 세액공제 FEOC · 국방부 CATL 등재 · 8월 전력망 행정명령(기설치·UPS까지) → 4개 경로 동시 작동, 미중 휴전에서도 ESS는 빠짐</td></tr>
- <tr><td>옵션</td><td>전고체(2027 양산 목표)는 근거 부족으로 목표 시총에 0</td></tr>
- <tr><td>현실 체크</td><td>SOKHA 2028E 영업이익의 약 60%가 AMPC. KUVIC는 AMPC가 판가로 전가돼 수혜가 이익보다 물량으로 온다고 봄 → AMPC를 빼면 적정 시총 ${fz(SC.exA)}(${fa(add(SC.exA))}). 그래서 목표는 증권사 이익 기준</td></tr>
- <tr><td>리스크</td><td>3Q 일회성(약 2,000억) 기저, 전기차 2028년까지 약세, 2025년 유상증자 +17% 이력, AMPC·FEOC 정책</td></tr>
+ <tr><td>탑다운</td><td>2026 상반기 북미 ESS 출하의 71%가 중국산. 관세 + 세액공제 소재 요건으로 중국 셀 채택률 2028E 4%, 2029E 0%(KUVIC 2팀)</td></tr>
+ <tr><td>핵심: AMPC</td><td>미국에서 셀·모듈을 만들면 kWh당 $45(1GWh당 약 630억). 3Q26 1,225억 → 4Q26E 1,990억 → 2027E 1.14조(영업이익의 72%) → 2028E 2.36조. <b>이익 = 미국 생산 GWh</b></td></tr>
+ <tr><td>물량</td><td>2026.10 미국 각형 LFP 양산 개시. 미국 ESS CAPA 19 → 33 → 76GWh, 수주 60GWh+, 2028년까지 물량 확보(회사). 주피터파워 16GWh(11/16)</td></tr>
+ <tr><td>지속성</td><td>AMPC 소재 요건(비중국 65% → 80%)은 소유·지배 기준이라 중국이 우회 불가. SDI는 엘앤에프 LFP 양극재 1.6조 선확보</td></tr>
+ <tr><td>추가 축</td><td>UPS 리튬 배터리 점유율 약 50%, BBU 21700 셀 선제 양산</td></tr>
+ <tr><td>리스크</td><td>소재 요건 미달(AMPC 탈락), 3Q 일회성 약 2,000억 기저, 2030년부터 AMPC 감액, 2025년 유상증자 +17% 이력</td></tr>
  <tr><td>유동성</td><td>20일 평균 거래대금 약 3,500억 → 펀드 1%를 하루에. 연 변동성 78%</td></tr></tbody></table>`)}
  ${card('체크 포인트','분기마다 확인',`<div class="tl">
- <div class="st"><div class="w">4Q26</div><div class="e">경상 영업이익 흑자</div><div class="x">일회성 빠진 컨센서스 약 1,400억</div><span class="pill wait">대기</span></div>
- <div class="st"><div class="w">4Q26~</div><div class="e">미국 ESS 출하 GWh</div><div class="x">SOKHA 2026E 8.3GWh</div><span class="pill wait">대기</span></div>
- <div class="st"><div class="w">2027</div><div class="e">AMPC 소재 요건 65%</div><div class="x">Non-PFE 비중 충족 여부</div></div>
- <div class="st"><div class="w">2027</div><div class="e">SPE 2라인 램프업</div><div class="x">CAPA 33GWh</div></div>
- <div class="st"><div class="w">12/24 전후</div><div class="e">DOE 행정명령 세부 규칙</div><div class="x">기설치·UPS 포함 범위</div><span class="pill wait">대기</span></div>
+ <div class="st"><div class="w">매 분기</div><div class="e">AMPC 금액</div><div class="x">3Q 1,225억 → 4Q 약 2,000억(신한)</div><span class="pill wait">대기</span></div>
+ <div class="st"><div class="w">4Q26~</div><div class="e">미국 생산 GWh</div><div class="x">AMPC ÷ 630억 = 생산량</div></div>
+ <div class="st"><div class="w">1H27</div><div class="e">SPE 2개 라인 추가 전환</div><div class="x">미국 CAPA 30GWh대</div></div>
+ <div class="st"><div class="w">2027</div><div class="e">소재 요건 65%</div><div class="x">엘앤에프 LFP 양극재 투입</div></div>
+ <div class="st"><div class="w">12/24 전후</div><div class="e">DOE 행정명령 규칙</div><div class="x">중국 배제 강도</div><span class="pill wait">대기</span></div>
  </div>`)}
  </div></section>`;
  /* 실적 */
  H+=`<section class="page" id="fin"><div class="page-head"><h1>실적</h1><p>억원, 연결 · DART 분기·사업보고서 · 2026E~2028E는 SOKHA 추정과 증권사 평균</p></div>
  <div class="two">${card('분기 매출·영업이익률','2Q26, 7개 분기 만에 흑자 전환',`<div class="ch-box"><canvas id="cQ"></canvas></div>`)}
- ${card('연간 영업이익: AMPC 포함 vs 제외','SOKHA 추정. 막대 = AMPC 포함, 점선 = AMPC 제외, 점 = 증권사 평균',`<div class="ch-box"><canvas id="cY"></canvas></div><p class="figcap">2028E 영업이익 3.83조 중 AMPC 제외분은 1.46조(OPM 5.2%). 이익의 뼈대가 세액공제라는 뜻</p>`)}</div>
+ ${card('연간 영업이익과 AMPC','SOKHA 추정. 막대 = 영업이익, 점선 = AMPC 외 영업이익(차이가 AMPC), 점 = 증권사 평균',`<div class="ch-box"><canvas id="cY"></canvas></div><p class="figcap">2028E 영업이익 3.83조 중 AMPC 2.36조(62%). 이익의 뼈대가 미국 생산 세액공제</p>`)}</div>
  ${card('외울 숫자','',`<div class="tw"><table><thead><tr><th>분기</th><th class="n">매출</th><th class="n">YoY</th><th class="n">영업이익</th><th class="n">OPM</th><th class="n">지배순이익</th></tr></thead><tbody>${Q.map((r,i)=>{const p=i>=4?Q[i-4]:null;return `<tr><td>${r.q}</td><td class="n">${nf(r.rev)}</td><td class="n ${p?cls(r.rev-p.rev):''}">${p?pc((r.rev/p.rev-1)*100,1):'-'}</td><td class="n ${cls(r.op)}">${nf(r.op)}</td><td class="n">${nf(r.op/r.rev*100,1)}%</td><td class="n">${r.ni==null?'-':nf(r.ni)}</td></tr>`}).join('')}
  <tr><td><b>2025</b></td><td class="n"><b>132,667</b></td><td class="n down">-20.0%</td><td class="n down"><b>-17,224</b></td><td class="n">-13.0%</td><td class="n"><b>-6,495</b></td></tr></tbody></table></div>
- <ul class="def" style="margin-top:10px"><li>외우는 법: 2025 "13.3조, 영업손실 1.7조" → 2Q26 흑자 전환 → 3Q26 "4.7조 / 4,078억, 마진 8.7%"</li><li><b>3Q26 4,078억의 구성:</b> AMPC 1,225억 + 일회성 순 약 2,000억(북미 고객 물량 보상금 - ESS 품질충당) → 경상 1,000~2,000억(유안타·대신)</li><li>SOKHA는 "AMPC 제외 OPM 6.1%"로 쓰지만, 일회성까지 빼면 경상 OPM은 2~4%</li><li>재무: SDC 지분 매각(4.45조)으로 차입금 3.6조 상환, 부채비율 78% → 67%(3Q26)</li></ul>`)}
+ <ul class="def" style="margin-top:10px"><li>외우는 법: 2025 "13.3조, 영업손실 1.7조" → 2Q26 흑자 전환 → 3Q26 "4.7조 / 4,078억, 마진 8.7%"</li><li><b>3Q26 4,078억의 구성:</b> AMPC 1,225억 + 일회성 순 약 2,000억(북미 고객 물량 보상금 - ESS 품질충당) → 경상 1,000~2,000억(유안타·대신)</li><li>AMPC는 회계상 매출원가 차감으로 영업이익에 바로 잡힘 → 미국 생산이 늘면 영업이익이 같이 늘어나는 구조</li><li>재무: SDC 지분 매각(4.45조)으로 차입금 3.6조 상환, 부채비율 78% → 67%(3Q26)</li></ul>`)}
+ </section>`;
+ /* AMPC */
+ H+=`<section class="page" id="ampc"><div class="page-head"><h1>AMPC: 이익의 본체</h1><p>미국 IRA 45X 첨단제조 생산세액공제 · 미국에서 만든 셀·모듈에 kWh당 지급 · 숫자는 최근 리포트·SOKHA·KUVIC 2팀</p></div>
+ <div class="flow">
+ <div class="b"><div class="h">법정 단가 (~2029)</div><div class="v">kWh당 $45</div><div class="x">셀 $35 + 모듈 $10</div></div>
+ <div class="b"><div class="h">1GWh 생산하면</div><div class="v">약 630억원</div><div class="x">$45M × 1,400원</div></div>
+ <div class="b"><div class="h">2027E AMPC</div><div class="v">1.14조</div><div class="x">영업이익 1.57조의 72%(신한 11/4)</div></div>
+ <div class="b"><div class="h">2028E AMPC</div><div class="v">2.36조</div><div class="x">영업이익 3.83조의 62%(SOKHA)</div></div>
+ </div><div style="height:14px"></div>
+ <div class="two">${card('영업이익 = AMPC + 그 외 (조원)','2027E 신한, 2028E SOKHA',`<div class="ch-box"><canvas id="cAm"></canvas></div><p class="figcap">분기: 3Q26 1,225억(공시) → 4Q26E 1,990억(신한). DS투자증권은 4Q 배터리 영업이익 중 AMPC 외는 275억으로 봄 → 지금 이익은 사실상 AMPC</p>`)}
+ ${card('AMPC = 미국 생산량 × 단가','그래서 봐야 할 것은 GWh',`<table class="vs"><tbody>
+ <tr><td>CAPA</td><td>미국 ESS 19GWh(2026) → 33(2027E) → 76(2028E), SOKHA. 증권사는 2027말 30~35GWh, 2028 50GWh(삼성증권)</td></tr>
+ <tr><td>수주</td><td>2026.10까지 60GWh+, 2026 목표 120GWh+. 2028년까지 생산 물량 확보(회사, 3Q 컨콜)</td></tr>
+ <tr><td>확인된 계약</td><td>2조원+(2027~, 3년) · 1.5조원(2026.3) · 주피터파워 16GWh(2029~, 누적 27GWh)</td></tr>
+ <tr><td>계산</td><td>2028E 미국 판매 40GWh × 630억 ≈ 2.5조 → SOKHA AMPC 2.36조와 맞음</td></tr>
+ <tr><td>귀속</td><td>공장 지분만큼 지배주주 몫. 2026.8 GM 합작 지분 49.99% 인수로 단독공장 편입 → 귀속 비율 상승</td></tr></tbody></table>`)}</div>
+ <div class="two">${card('AMPC를 받는 조건: 비중국 소재','KUVIC 2팀 정리(26 U.S.C. §45X, IRS Notice 2026-15)',`<div class="tw"><table><thead><tr><th>연도</th><th class="n">비중국 소재 기준</th><th class="n">한국 3사 대응(BOM 기준)</th></tr></thead><tbody>
+ <tr><td>2026</td><td class="n">60%</td><td class="n">-</td></tr><tr><td>2027</td><td class="n">65%</td><td class="n">76.9%</td></tr><tr><td>2028</td><td class="n">70%</td><td class="n">-</td></tr><tr><td>2029</td><td class="n">80%</td><td class="n">87.8%</td></tr><tr><td>2030</td><td class="n">85%</td><td class="n">91.5%</td></tr></tbody></table></div>
+ <ul class="def" style="margin-top:8px"><li><b>중국은 못 피함:</b> 관세는 원산지라 제3국 공장으로 피하지만, 소재 요건은 소유·지배 기준</li><li><b>양극재가 관건:</b> 셀 원재료비의 약 40%. SDI는 엘앤에프 LFP 양극재 1.6조(2027~, 3년), 포스코퓨처엠 계약</li></ul>`)}
+ ${card('고객이 SDI 셀을 사는 이유','같은 세액공제가 고객(개발사)에게도 작동',`<table class="vs"><tbody>
+ <tr><td>프로젝트 순투자비</td><td>중국산 셀 $241.5/kWh vs 한국사 미국산 $135.1/kWh(관세·45X·48E 반영, KUVIC 2팀)</td></tr>
+ <tr><td>48E(ITC)</td><td>개발사 투자세액공제도 비중국 소재 요건 → 중국 셀을 쓰면 개발사가 공제를 잃음</td></tr>
+ <tr><td>단가 일정</td><td>$45(~2029) → $33.8(2030) → $22.5(2031) → $11.3(2032) → 소멸(2033). 그 전에 가동률로 원가를 낮춰야 함</td></tr>
+ <tr><td>리스크</td><td>소재 요건 미달 시 해당 생산분 AMPC 전액 탈락 → SOTP 기준 적정 시총 ${fz(SC.exA)}(${fa(add(SC.exA))})까지 낮아짐</td></tr></tbody></table>`)}</div>
  </section>`;
  /* ESS */
  H+=`<section class="page" id="ess"><div class="page-head"><h1>ESS·미국</h1><p>중국이 빠지는 자리를 누가 채우나 · 수치는 SOKHA 보고서 추정, 공시 확인분은 따로 표시</p></div>
@@ -116,7 +141,7 @@ function build(){
  <tr><td>AMPC · ITC</td><td>26.01</td><td>Non-PFE 소재 비중 2026 60% · 2027 65% · 2028 70%</td><td>중국 소재·셀 사용 제한</td></tr>
  <tr><td>EO 14421</td><td>26.08</td><td>중국산 ESS·변압기 구매·설치 금지 권한</td><td>전력망 장비 배제</td></tr>
  <tr><td>NDAA sec.154</td><td>27.06</td><td>CATL 등 6개사 국방부 거래 금지</td><td>공급망 배제 확대</td></tr></tbody></table></div>`)}
- ${card('왜 SDI인가','',`<ul class="def"><li><b>각형 단일화:</b> SDI는 ESS를 각형으로 단일화(셀 두께 10~20cm까지, 파우치는 2~3cm 한계). 단, LGES도 랜싱에서 각형 LFP를 2026.8 먼저 양산(테슬라 43억달러) → SOKHA의 '유일' 주장은 과장(KUVIC)</li><li><b>소재:</b> 엘앤에프 LFP 양극재 1.6조원(2027년부터 3년, 공시) 등. 2029년 소재 요건 80%부터 병목이 셀에서 비중국 양극재로 이동 → 먼저 확보한 회사가 남는 물량을 가져감(KUVIC)</li><li><b>물량:</b> 2028년까지 SPE 1공장 ESS 라인 물량 확보, 주피터파워 LFP 16GWh(2029~31) 등 장기 계약</li><li><b>숫자:</b> 증설 1GWh당 매출 약 1,500억(SOKHA). 2028E 비중국 각형 LFP 점유율 78%</li></ul>`)}
+ ${card('왜 SDI인가','',`<ul class="def"><li><b>각형 단일화:</b> SDI는 ESS를 각형으로 단일화(셀 두께 10~20cm까지, 파우치는 2~3cm 한계). LGES는 파우치·각형 병행</li><li><b>소재:</b> 엘앤에프 LFP 양극재 1.6조원(2027년부터 3년, 공시) 등. 2029년 소재 요건 80%부터 병목이 셀에서 비중국 양극재로 이동 → 먼저 확보한 회사가 남는 물량을 가져감(KUVIC)</li><li><b>물량:</b> 2028년까지 SPE 1공장 ESS 라인 물량 확보, 주피터파워 LFP 16GWh(2029~31) 등 장기 계약</li><li><b>숫자:</b> 증설 1GWh당 매출 약 1,500억(SOKHA). 2028E 비중국 각형 LFP 점유율 78%</li></ul>`)}
  </section>`;
  /* 중국 배제 */
  const CN=[
@@ -165,7 +190,7 @@ function build(){
  </section>`;
  /* SOKHA 점검 */
  const sr=[['Bear','9.0배',eqv(9.0)],['Base','10.7배',SC.sk],['Bull','12.8배',SC.skBull]];
- H+=`<section class="page" id="sokha"><div class="page-head"><h1>SOKHA 밸류 점검</h1><p>S.R.S SOKHA 리서치팀 「삼성ESS, The Ideal Pick」(2026.11.10) · CONVICTION BUY · SOTP</p></div>
+ H+=`<section class="page" id="sokha"><div class="page-head"><h1>SOKHA 밸류 점검</h1><p>S.R.S SOKHA 리서치팀 「삼성ESS, The Ideal Pick」(2026.11.10) · SOTP 틀을 목표 시총으로 사용</p></div>
  <div class="two">${card('SOTP 구조 (조원)','영업가치 = 2028E EBITDA 7.03조 × LGES 24M Fwd EV/EBITDA(2Q25 평균 10.7배)',`<div class="tw"><table><thead><tr><th>항목</th><th class="n">Bear</th><th class="n">Base</th><th class="n">Bull</th></tr></thead><tbody>
  <tr><td>EV/EBITDA</td><td class="n">9.0배</td><td class="n">10.7배</td><td class="n">12.8배</td></tr>
  <tr><td>영업가치</td><td class="n">63.2</td><td class="n">75.2</td><td class="n">89.9</td></tr>
@@ -174,39 +199,38 @@ function build(){
  <tr><td>- 비지배·우선주</td><td class="n">4.2</td><td class="n">4.2</td><td class="n">4.2</td></tr>
  <tr><td><b>적정 시총</b></td>${sr.map(r=>`<td class="n"><b>${nf(r[2],1)}</b></td>`).join('')}</tr>
  <tr><td>지금 대비</td>${sr.map(r=>`<td class="n ${cls(add(r[2]))}">${fa(add(r[2]))}</td>`).join('')}</tr></tbody></table></div><p class="figcap">비영업: 상장 지분 2.2조 × 70% + 비상장(SDC) 9.9조 × 50%</p>`)}
- ${card('내가 고친 것','같은 틀에서 가정 하나씩만 바꿈',`<div class="ch-box"><canvas id="cSk"></canvas></div><ul class="def" style="margin-top:8px"><li><b>시점:</b> 2028년 EBITDA를 지금 값으로 쓰려면 1년 할인(10%) → ${fz(SC.disc)}</li><li><b>AMPC:</b> 2028E 영업이익 3.83조 중 2.36조가 AMPC. 빼면 ${fz(SC.exA)} → 정책 하나에 시총 25조가 걸림</li><li><b>컨센서스 차이:</b> SOKHA 2027E 영업이익 2.16조 vs 증권사 평균 1.37조(+57%)</li><li><b>합작 지분:</b> 스타플러스는 SDI 지분 51% 합작 → 그곳 AMPC는 연결 영업이익엔 100%, 지배주주 몫은 51%(KUVIC). 그래서 순이익 기준으로 비교</li></ul>`)}</div>
- ${card('보고서 숫자 점검','인용 전 확인할 것',`<ul class="def"><li>목표주가: 표지 860,691원 vs 밸류 페이지 870,691원(계산상 870,691원이 맞음)</li><li>주식 수: 보통주 7,708만 주로 나눔. 상장 보통주 8,059만 주로 나누면 주당 약 83만원 → 그래서 이 대시보드는 주가가 아니라 시총으로 비교</li><li>시가총액: 표지 44.3조는 456,000원 × 8,059만 주(36.7조)와 맞지 않음</li><li>2024·2025 영업이익: 표지 표(2,734억 / -1.998조)와 비용 추정 표(3,633억 / -1.722조)가 다름 → 공시 기준 3,633억 / -1.722조 사용</li><li>2026E 영업이익 3,424억은 증권사 평균 5,810억보다 낮고, 2027E부터 높음 → 성장 기울기가 가파른 추정</li></ul>`)}
- </section>`;
- /* KUVIC 비교 */
- const VS=[
- ['미국 ESS 수요','TAM 81 → 115GWh(2026 → 2028E)','배터리 수요 85 → 144GWh(2026 → 2030E)','규모는 비슷. 둘 다 연 15~20% 성장'],
- ['수요의 원천','AI 데이터센터 + 재생에너지','전력망(FTM)이 중심. 데이터센터 관련은 6.4% → 8.6%','피칭에서 "AI 데이터센터 때문"만 말하지 않음. 전력 부족 → 전력망 ESS가 본체'],
- ['중국 배제 속도','2028E 비중국 80%','중국 채택률 2028E 3.9%, 2029E 0%','KUVIC가 더 빠름. 방향은 같음'],
- ['AMPC(45X)의 귀속','셀 업체 영업이익. 2028E 영업이익의 64%','판가로 전가. 셀 업체 수혜는 물량·가동률','KUVIC 쪽을 따름 → AMPC 포함 SOTP(67조)는 Bull로만'],
- ['SDI 차별점','미국 각형 LFP 유일, 2026.10 최초 양산','LGES도 랜싱 각형 LFP 2026.8 양산(테슬라), 공장 지분 100%','"유일" 표현 금지. "각형 단일화 + 양극재 선확보"로'],
- ['2029년 이후','언급 적음','소재 요건 80% → 병목이 비중국 양극재로. 45X 감액, 2032년 가격 역전','양극재 확보와 2030년 전 원가 개선이 장기 체크 포인트'],
- ['UPS·BBU','점유율 50%, 2028E 4조','UPS 리튬 1.6 → 3.9GWh, 마진 높지만 물량 작음','SDI만의 추가 축. LGES 대비 차별점으로 사용'],
- ['탑픽','삼성SDI(SOTP 67조)','LG에너지솔루션','같은 수혜를 더 싸게 사는 쪽으로 SDI. LGES 선행 PER 45배 vs SDI 25배']];
- H+=`<section class="page" id="vs"><div class="page-head"><h1>SOKHA vs KUVIC 2팀 논리 비교</h1><p>SOKHA 「삼성ESS, The Ideal Pick」(11/10) · KUVIC 리서치 2팀 「ESSential」(9/14) · 둘이 갈리는 곳에서 내가 고른 것</p></div>
- ${card('항목별 비교','',`<div class="tw"><table class="vs"><thead><tr><th>항목</th><th>SOKHA</th><th>KUVIC 2팀</th><th>내 피칭에 반영</th></tr></thead><tbody>${VS.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td><b>${r[3]}</b></td></tr>`).join('')}</tbody></table></div>`)}
- <div class="two">${card('결론: 두 보고서를 합치면','',`<ul class="def"><li><b>산업은 KUVIC:</b> 수요는 전력망 중심, 중국 배제는 세액공제 소재 요건이 핵심이라 우회가 어렵고 속도도 빠름</li><li><b>이익은 보수적으로:</b> AMPC는 판가로 전가될 수 있어 영업이익에 그대로 쌓지 않음 → 목표 시총은 증권사 이익 × 과거 배수(56조)</li><li><b>종목은 가격:</b> 수혜 크기는 LGES가 크지만 같은 이야기를 SDI가 절반 배수에 거래</li><li><b>장기 리스크도 KUVIC:</b> 2029년 양극재 병목, 2030년부터 45X 감액</li></ul>`)}
- ${card('면접에서 받을 질문','"본인 팀 보고서는 LGES인데?"',`<p style="line-height:1.7;margin:0">9월 보고서에서 저희 팀은 미국 양산이 가장 빠르고 세액공제를 다 가져가는 LGES를 골랐습니다. 그 판단은 지금도 맞다고 봅니다. 다만 지금 LGES는 선행 PER 45배이고, 삼성SDI는 같은 수혜를 25배에 받습니다. 삼성SDI는 10월 미국 LFP 양산을 시작했고 수주도 60GWh를 넘겨 실행 리스크가 줄었습니다. 같은 산업 논리에서 지금 가격이 더 좋은 쪽을 고른 겁니다.</p>`)}</div>
+ ${card('목표 배수는 낮은 쪽','2028E EBITDA(AMPC 포함) 기준 EV/EBITDA',`<table class="vs"><tbody>
+ <tr><td>SOKHA</td><td>10.7배 · LGES 2Q25(미국 LFP 양산 개시기) 24M Fwd 평균</td></tr>
+ <tr><td>iM(9/21)</td><td>12.1배 · 2028E EBITDA, SOTP, "전력 인프라 기업" 재평가</td></tr>
+ <tr><td>신한(10/30)</td><td>11.5 → 13.4배 상향</td></tr>
+ <tr><td>신영(4월)</td><td>2027E 배터리 EBITDA 3.3조 × 19배</td></tr>
+ <tr><td>내 선택</td><td><b>10.7배(가장 낮은 배수)</b> → ${fz(SC.sk)}. 증권사 목표가 평균 시총 ${fz(SC.broker)}과 비슷</td></tr></tbody></table>`)}</div>
+ ${card('보고서 숫자 점검','인용 전 확인할 것',`<ul class="def"><li>목표주가: 표지 860,691원 vs 밸류 페이지 870,691원(계산상 870,691원이 맞음)</li><li>주식 수: 보통주 7,708만 주로 나눔. 상장 보통주 8,059만 주로 나누면 주당 약 83만원 → 그래서 주가가 아니라 시총으로 비교</li><li>시가총액: 표지 44.3조는 456,000원 × 8,059만 주(36.7조)와 맞지 않음</li><li>2024·2025 영업이익: 표지 표(2,734억 / -1.998조)와 비용 추정 표(3,633억 / -1.722조)가 다름 → 공시 기준 3,633억 / -1.722조 사용</li><li>2026E 영업이익 3,424억은 증권사 평균 5,810억보다 낮고, 2027E 2.16조는 신한 1.57조보다 높음 → 2027년 미국 램프업 속도가 차이</li></ul>`)}
  </section>`;
  /* 컨센서스 */
- H+=`<section class="page" id="cons"><div class="page-head"><h1>컨센서스</h1><p>3분기 실적 뒤 리포트 · 금액은 지배주주 기준</p></div>
- ${card('증권사 추정','',`<div class="tw"><table><thead><tr><th>증권사</th><th>날짜</th><th class="n">목표가</th><th class="n">2026E 영업이익</th><th class="n">2027E 영업이익</th><th class="n">2027E 순이익</th><th class="n">2028E 순이익</th></tr></thead><tbody>${CONS.map(c=>`<tr>${c.map((x,i)=>`<td${i>1?' class="n"':''}>${x}</td>`).join('')}</tr>`).join('')}
+ H+=`<section class="page" id="cons"><div class="page-head"><h1>리포트·컨센서스</h1><p>9월 말~11월 리포트 · 공통 논리: EV 대신 ESS, ESS 이익의 대부분은 AMPC, "전력 인프라 기업"으로 재평가</p></div>
+ ${card('최근 리포트 논리와 숫자','기사로 확인한 리포트(원문 미열람분은 기사 기준)',`<div class="tw"><table class="vs"><thead><tr><th>날짜</th><th>증권사</th><th class="n">목표가</th><th>숫자</th><th>논리</th></tr></thead><tbody>
+ <tr><td>11/4</td><td>신한</td><td class="n">80만 유지</td><td>2027E 영업이익 1.57조(+154%), AMPC 1.14조(72%), ESS 영업이익 1.28조(82%), ESS 매출 8.9조(+91%), 미국 CAPA 2027말 32GWh</td><td>EV 대신 ESS가 실적 주인공</td></tr>
+ <tr><td>10/30</td><td>신한</td><td class="n">74 → 80만</td><td>EV/EBITDA 11.5 → 13.4배, 2026 수주 목표 120GWh+</td><td>수주·CAPA·신사업이 맞물려 이익 체력 강화</td></tr>
+ <tr><td>10/30</td><td>신영</td><td class="n">77만 유지</td><td>-</td><td>매수 유지</td></tr>
+ <tr><td>10/14</td><td>신한</td><td class="n">62 → 74만</td><td>AMPC 3Q 1,280억 → 4Q 1,990억, 2027E 영업이익 1.72조</td><td>3Q 서프라이즈는 일회성, ESS 성장은 아님</td></tr>
+ <tr><td>10/8</td><td>DS</td><td class="n">84 → 94만</td><td>2026E 영업이익 5,303억(+42%), 4Q 배터리 AMPC 외 이익 275억</td><td>4Q 미국 LFP 물량 시작</td></tr>
+ <tr><td>9/28</td><td>삼성</td><td class="n">55 → 64만</td><td>북미 ESS CAPA 30(2026) → 50GWh(2028)</td><td>북미 증설 가시화, SDC 지분 재평가</td></tr>
+ <tr><td>9/21</td><td>iM</td><td class="n">59 → 80만</td><td>2028E 영업이익 2.38조, 2028E EBITDA × 12.1배 SOTP, CAPA 2027말 35GWh</td><td>전력 인프라 기업으로 재평가</td></tr></tbody></table></div>`)}
+ ${card('3분기 실적 뒤 주요 추정','앞서 정리한 리포트 표'
+ ,`<div class="tw"><table><thead><tr><th>증권사</th><th>날짜</th><th class="n">목표가</th><th class="n">2026E 영업이익</th><th class="n">2027E 영업이익</th><th class="n">2027E 순이익</th><th class="n">2028E 순이익</th></tr></thead><tbody>${CONS.map(c=>`<tr>${c.map((x,i)=>`<td${i>1?' class="n"':''}>${x}</td>`).join('')}</tr>`).join('')}
  <tr><td><b>평균</b></td><td></td><td class="n"><b>804,000</b></td><td class="n"><b>5,810억</b></td><td class="n"><b>1.37조</b></td><td class="n"><b>1.37조</b></td><td class="n"><b>2.35조</b></td></tr>
  <tr><td><b>SOKHA</b></td><td>11/10</td><td class="n">870,691</td><td class="n">3,424억</td><td class="n">2.16조</td><td class="n">-</td><td class="n">-</td></tr></tbody></table></div>
  <ul class="def" style="margin-top:10px"><li>평균 목표가 80.4만원 = 시총 ${fz(SC.broker)}(${fa(add(SC.broker))})</li><li>대신 SOTP: 대형 44조 + 소형 15조 + 전자재료 1.6조 + SDC 4.7조 - 순차입금 6.2조 = 60조</li><li>하나: 2028E 순이익 × 24MF 평균 PER 24배 = 55조(증설·수주 반영 시 65조)</li><li>네이버 컨센서스(11/23) 목표가 773,955원, 2026E 영업이익 5,929억 → 4Q 약 1,400억 내포</li></ul>`)}
  </section>`;
  /* 밸류 */
- const rows=[['하방','PBR 1.0배(2025 바닥 0.8~1.0배)',SC.down],['AMPC 없음','SOKHA 틀에서 AMPC 제외',SC.exA],['보수','2028E 순이익 2.35조 × 20배',SC.c20],['목표','2028E 순이익 2.35조 × 24배(하나 24MF 평균)',SC.tgt],['증권사 평균','목표가 80.4만원',SC.broker],['SOKHA Base','SOTP 10.7배',SC.sk],['SOKHA Bull','SOTP 12.8배',SC.skBull]];
- H+=`<section class="page" id="val"><div class="page-head"><h1>밸류에이션</h1><p>지배순이익 × PER = 시총 · 시총 애드 기준 · 전고체는 0</p></div>
- <div class="kpis">${kpi('지금 시총',fz(MC),'2027E PER 26.5배 · 2028E 15.4배','val')}${kpi('목표 시총',fz(SC.tgt),fa(add(SC.tgt))+' · 2028E × 24배','val')}${kpi('하방 시총',fz(SC.down),fa(add(SC.down))+' · PBR 1.0배','val')}${kpi('위아래 비율',nf(add(SC.tgt)/-add(SC.down),1)+' : 1','목표 애드 ÷ 하방','val')}</div>
+ const rows=[['하방','PBR 1.0배(2025 바닥 0.8~1.0배)',SC.down],['보수','2028E 순이익 2.35조 × PER 24배',SC.c24],['증권사 평균','목표가 80.4만원',SC.broker],['목표','2028E EBITDA 7.0조(AMPC 포함) × 10.7배 + SDC 등 - 순차입금',SC.tgt],['Bull','같은 틀 × 12.8배',SC.skBull]];
+ H+=`<section class="page" id="val"><div class="page-head"><h1>밸류에이션</h1><p>SOTP: 2028E EBITDA(AMPC 포함) × EV/EBITDA + 비영업 지분 - 순차입금 = 시총 · 전고체 0</p></div>
+ <div class="kpis">${kpi('지금 시총',fz(MC),'2028E PER 15.4배','val')}${kpi('목표 시총',fz(SC.tgt),fa(add(SC.tgt))+' · EV/EBITDA 10.7배','val')}${kpi('하방 시총',fz(SC.down),fa(add(SC.down))+' · PBR 1.0배','val')}${kpi('위아래 비율',nf(add(SC.tgt)/-add(SC.down),1)+' : 1','목표 애드 ÷ 하방','val')}</div>
  <div class="two">${card('시나리오별 시총 (조원)','',`<div class="ch-box tall"><canvas id="cV"></canvas></div>`)}
  ${card('표','',`<div class="tw"><table><thead><tr><th>시나리오</th><th>가정</th><th class="n">시총</th><th class="n">시총 애드</th></tr></thead><tbody>${rows.map(r=>`<tr${r[0]==='목표'?' style="font-weight:700"':''}><td>${r[0]}</td><td>${r[1]}</td><td class="n">${fz(r[2])}</td><td class="n ${cls(add(r[2]))}">${fa(add(r[2]))}</td></tr>`).join('')}</tbody></table></div>
- <ul class="def" style="margin-top:10px"><li><b>왜 2028년:</b> 이익이 바닥에서 오는 구간이라 2027E PER 26.5배는 의미가 약함. 12개월 뒤 시장이 볼 이익이 2028년</li><li><b>왜 24배:</b> 하나증권 24MF 평균 PER. 보수적으로 20배도 ${fa(add(SC.c20))}</li><li><b>비중:</b> 펌텍(2:1)과 비대칭은 비슷하지만 변동성이 78%로 높아 펌텍보다 작게</li></ul>`)}</div>
- ${card('직접 계산','',`<div class="fin-in"><label>2028E 지배순이익(조)<input type="number" id="vN" value="2.35" step="0.05"></label><label>PER(배)<input type="number" id="vP" value="24" step="1"></label></div><div>시총 <span class="big" id="vOut"></span> <span id="vUp"></span></div>`)}
+ <ul class="def" style="margin-top:10px"><li><b>왜 EV/EBITDA:</b> 설비가 큰 회사라 감가상각·이자 영향을 뺀 영업 현금 창출력으로 봄. AMPC는 현금으로 들어오는 이익이라 EBITDA에 그대로 포함</li><li><b>왜 2028년:</b> 미국 CAPA가 76GWh로 다 깔리는 해. AMPC 2.36조가 EBITDA 7.0조의 약 1/3</li><li><b>왜 10.7배:</b> 증권사(12.1~13.4배)보다 낮은 배수. 그래도 증권사 평균 목표가 시총(${fz(SC.broker)})과 비슷</li><li><b>교차 확인:</b> 증권사 2028E 순이익 2.35조 × 24배 = ${fz(SC.c24)}</li></ul>`)}</div>
+ ${card('직접 계산','2028E EBITDA × EV/EBITDA + 비영업 5.6조 - 순차입금·비지배·우선주 13.7조',`<div class="fin-in"><label>2028E EBITDA(조)<input type="number" id="vN" value="7.03" step="0.1"></label><label>EV/EBITDA(배)<input type="number" id="vP" value="10.7" step="0.5"></label></div><div>시총 <span class="big" id="vOut"></span> <span id="vUp"></span></div>`)}
  </section>`;
  /* 주가 */
  H+=`<section class="page" id="px"><div class="page-head"><h1>주가·피어</h1><p>최근 1년 일봉 · Yahoo Finance(11/24)</p></div>
@@ -216,45 +240,42 @@ function build(){
  <ul class="def" style="margin-top:10px"><li>LGES 선행 PER 45배 vs SDI 25배. 같은 미국 ESS 이야기인데 SDI가 더 쌈</li><li>펌텍코리아와 1년 일간 수익률 상관계수 0.21 → 두 종목을 같이 들 때 분산 효과</li></ul>`)}
  </section>`;
  /* 피칭 */
- H+=`<section class="page" id="pitch"><div class="page-head"><h1>5분 피칭</h1><p>연결 → 결론 → 산업 → ESS → UPS·BBU → 미국의 의지 → 밸류 현실 체크 → 리스크 · 금액은 시총 기준</p></div>
+ H+=`<section class="page" id="pitch"><div class="page-head"><h1>5분 피칭</h1><p>연결 → 결론 → 산업 → AMPC → AMPC 지속성 → UPS·미국의 의지 → 리스크 · 금액은 시총 기준</p></div>
  ${card('연결 멘트 (펌텍 → 삼성SDI, 약 20초)','',`<div class="script"><p>펌텍이 이미 숫자로 증명된 성장을 합리적인 가격에 사는 아이디어라면, 두 번째는 업황 바닥에서 이익 구조 자체가 바뀌는 대형 턴어라운드입니다. 하나는 K뷰티 소비, 하나는 AI 데이터센터 전력이라 두 종목의 1년 상관계수는 0.21에 그칩니다. 두 번째는 삼성SDI입니다.</p></div>`)}
  ${card('스크립트','',`<div class="script">
- <p><span class="tg">[0:00 결론]</span>삼성SDI, 매수 의견입니다. 지금 시총은 36조입니다. 증권사 평균 2028년 순이익 2조 3,500억에 과거 평균 PER 24배를 주면 56조로, 20조가 더해집니다. 하방은 업황이 다시 꺾여 PBR 1배로 돌아가는 25조, 11조 감소입니다. 위아래 비율은 1.8 대 1이고, 변동성이 큰 만큼 펌텍보다 작은 비중으로 나눠 담겠습니다.</p>
- <p><span class="tg">[0:40 산업: 판이 뒤집혔다]</span>작년 미국 ESS 배터리 셀의 약 70%는 중국산이었습니다. 그런데 올해 관세가 크게 올랐고, 세액공제를 받으려면 중국 소재 비중을 매년 낮춰야 합니다. 2028년에는 비중국 셀이 80%가 될 거라는 추정이 나옵니다. 실제로 올해 상반기 북미 ESS 출하의 71%가 중국산이었고, 한국 두 회사는 20%였습니다. 중국이 빠지는 자리를 미국 현지 공장과 비중국 소재를 가진 한국 회사가 채우고, 그중 삼성SDI는 미국 ESS의 94%를 차지하는 각형에 집중했습니다.</p>
- <p><span class="tg">[1:30 포인트 1: ESS와 AMPC]</span>삼성SDI는 지난달 미국 공장에서 각형 LFP 양산을 시작했고, 10월까지 신규 수주가 60GWh를 넘었습니다. 미국 ESS 생산능력은 올해 19GWh에서 2028년 76GWh로 네 배가 됩니다. 핵심은 AMPC입니다. kWh당 최대 45달러를 받는데, 받으려면 비중국 소재를 써야 합니다. 2029년 이 요건이 80%로 오르면 병목은 공장이 아니라 비중국 양극재가 됩니다. 삼성SDI는 엘앤에프와 2027년부터 3년간 1.6조원 LFP 양극재 계약을 먼저 맺었습니다. 다만 AMPC는 상당 부분 판가로 넘어가기 때문에, 저는 이 수혜를 마진보다 물량과 가동률로 봅니다.</p>
- <p><span class="tg">[2:20 포인트 2: 데이터센터 백업전원]</span>두 번째는 AI 데이터센터입니다. 랙당 전력이 세 배로 커지면서 백업전원도 커지고 있습니다. 삼성SDI는 리튬이온 UPS 시장 점유율이 약 50%이고 재계약률이 90%를 넘습니다. 배터리를 바꾸려면 재인증에 넉 달이 걸려 한 번 들어가면 잘 안 바뀝니다. 랙 단위 BBU용 21700 셀도 올해 7월 가장 먼저 양산했습니다. UPS와 BBU 매출은 작년 1조 1천억에서 2028년 4조까지 커질 수 있습니다.</p>
- <p><span class="tg">[3:05 미국의 의지]</span>그럼 미국이 정말 끝까지 중국을 뺄까요. 저는 경로가 네 개라는 점을 봅니다. 관세는 약 41%, 세액공제는 비중국 소재 55%에서 75%로 올라가는 법 조항, 국방부는 CATL을 거래 금지 명단에 올렸고, 8월에는 국가비상사태를 선포해 이미 설치된 중국산 ESS까지 들어낼 수 있는 권한을 에너지부에 줬습니다. 9월 미중 무역 휴전에서도 ESS 관세는 그대로였습니다. 남은 변수는 다음 달 나올 에너지부 세부 규칙의 강도와, 2030년부터 줄어드는 세액공제입니다.</p>
- <p><span class="tg">[3:40 밸류: 현실 체크]</span>낙관적인 쪽은 적정 시총을 67조까지 봅니다. 그런데 그 계산의 2028년 영업이익 3조 8천억 중 2조 4천억이 AMPC입니다. AMPC를 빼면 42조로, 지금보다 6조밖에 높지 않습니다. 그래서 저는 낙관 추정이 아니라 증권사 평균 이익에 과거 평균 배수만 적용해 56조로 잡았고, 정책이 이 회사의 가장 큰 변수라고 봅니다.</p>
- <p><span class="tg">[4:20 리스크와 관리]</span>리스크는 세 가지입니다. 3분기 이익엔 일회성 약 2천억이 있어 4분기는 줄고, 전기차는 2028년까지 약하며, 작년 유상증자로 주식 수가 17% 늘었습니다. 분기 경상 영업이익이 두 분기 연속 적자이거나 AMPC 소재 요건을 못 맞추면 논리를 접겠습니다. 하루 거래대금이 3,500억이라 펀드 1%를 하루에 담고 뺄 수 있습니다.</p></div>`)}
- ${card('외울 숫자','',`<ul class="def"><li>시총 36조 → 목표 56조(+20조) · 하방 25조(-11조) · 1.8 : 1</li><li>SOKHA 67조(+31조) · AMPC 빼면 42조(+6조) · 증권사 평균 65조(+29조)</li><li>2025 "13.3조, -1.7조" · 3Q26 "4.7조 / 4,078억", 그중 AMPC 1,225억 + 일회성 약 2,000억</li><li>북미 ESS 출하 중국 71% · 한국 2사 20%(1H26) · 중국 채택률 2028E 3.9% → 2029E 0%(KUVIC) · 각형 94% · 미국 CAPA 19 → 76GWh · 수주 60GWh+ · AMPC kWh당 $45</li><li>UPS 점유율 50% · 재계약 90% · UPS+BBU 1.1 → 4.0조</li><li>중국 배제 4경로: 관세 약 41% · ITC 소재 55→75% · 국방부 CATL 등재(2027 거래 금지) · EO 14421(기설치·UPS, DOE 규칙 12/24 전후)</li><li>주피터파워 16GWh(누적 27GWh) · 전고체는 옵션(0)</li><li>2027E PER 26.5배 · 2028E 15.4배 · 거래대금 3,500억 · 변동성 78% · 펌텍 상관 0.21</li></ul>`)}
+ <p><span class="tg">[0:00 결론]</span>삼성SDI, 매수 의견입니다. 지금 시총은 36조입니다. 2028년 EBITDA 7조에 증권사들보다 낮은 EV/EBITDA 10.7배를 주고 삼성디스플레이 지분을 더하면 적정 시총은 67조로, 31조가 더해집니다. 증권사 평균 목표가로 계산한 65조와 비슷합니다. 하방은 업황이 다시 꺾여 PBR 1배로 돌아가는 25조, 11조 감소입니다. 위아래 비율은 2.7 대 1이고, 변동성이 큰 만큼 펌텍보다 작은 비중으로 나눠 담겠습니다.</p>
+ <p><span class="tg">[0:40 산업: 판이 뒤집혔다]</span>올해 상반기 북미 ESS 배터리 출하의 71%가 중국산이었습니다. 그런데 미국은 관세를 약 41%까지 올렸고, 세액공제를 받으려면 중국 소재를 쓰지 못하게 했습니다. 이 요건은 원산지가 아니라 소유와 지배 기준이라 중국이 제3국 공장으로 피할 수 없습니다. 중국 셀 채택률은 2028년 4%, 2029년 0%까지 떨어질 것으로 봅니다. 그 자리를 미국에 공장이 있는 한국 회사가 채웁니다.</p>
+ <p><span class="tg">[1:30 핵심: AMPC가 이익이다]</span>이 회사 이익의 본체는 AMPC, 미국 생산세액공제입니다. 미국에서 셀과 모듈을 만들면 kWh당 45달러, 1GWh면 약 630억원을 받습니다. 3분기 1,225억원, 4분기 약 2천억원, 내년에는 1조 1천억원으로 영업이익의 72%가 AMPC라는 추정이 나옵니다. 그래서 이 회사의 이익은 미국에서 몇 GWh를 만드느냐로 정해집니다. 삼성SDI는 10월 미국에서 각형 LFP 양산을 시작했고, 미국 ESS 생산능력은 올해 19GWh에서 2028년 76GWh로 네 배가 됩니다. 수주는 60GWh를 넘었고, 지난주 주피터파워와 16GWh를 추가했습니다.</p>
+ <p><span class="tg">[2:30 AMPC가 지속되는 이유]</span>AMPC를 받으려면 비중국 소재 비중이 내년 65%, 2029년 80%를 넘어야 합니다. 양극재가 셀 원재료비의 40%라 결국 비중국 양극재를 누가 먼저 확보하느냐인데, 삼성SDI는 엘앤에프와 1조 6천억원 규모 LFP 양극재 계약을 먼저 맺었습니다. 고객 입장에서도 미국산 한국 셀을 쓰면 프로젝트 비용이 kWh당 135달러로, 중국산 242달러보다 훨씬 쌉니다. 세액공제가 셀 회사와 고객 양쪽에서 중국을 밀어내는 구조입니다.</p>
+ <p><span class="tg">[3:20 추가 축과 미국의 의지]</span>여기에 데이터센터 백업전원인 리튬 UPS 시장 점유율이 약 50%입니다. 미국의 의지도 강합니다. 관세, 세액공제, 국방부의 CATL 거래 금지, 8월 국가비상사태 행정명령까지 네 경로가 동시에 작동하고, 9월 미중 무역 휴전에서도 ESS 관세는 그대로였습니다.</p>
+ <p><span class="tg">[4:00 리스크와 관리]</span>리스크는 세 가지입니다. 첫째, 소재 요건을 못 맞추면 그 물량의 AMPC가 통째로 빠지고 적정 시총은 42조까지 내려갑니다. 둘째, 3분기에는 일회성 2천억이 있어 4분기 이익은 줄어듭니다. 셋째, AMPC는 2030년부터 줄어듭니다. 그래서 분기마다 AMPC 금액과 미국 생산 GWh를 보고, AMPC가 두 분기 연속 줄면 논리를 다시 보겠습니다. 하루 거래대금이 3,500억이라 펀드 1%를 하루에 담고 뺄 수 있습니다.</p></div>`)}
+ ${card('외울 숫자','',`<ul class="def"><li>시총 36조 → 목표 67조(+31조) · 하방 25조(-11조) · 2.7 : 1 · 증권사 평균 65조 · 순이익 기준 56조</li><li>AMPC kWh당 $45 · 1GWh당 630억 · 3Q26 1,225억 → 4Q26E 1,990억 → 2027E 1.14조(영업이익의 72%) → 2028E 2.36조</li><li>미국 ESS CAPA 19 → 33 → 76GWh · 수주 60GWh+ · 주피터파워 16GWh(누적 27GWh)</li><li>북미 ESS 출하 중국 71%(1H26) → 중국 채택률 2028E 4%, 2029E 0% · 관세 약 41%</li><li>소재 요건 65%(2027) → 80%(2029) · 엘앤에프 LFP 양극재 1.6조 · 프로젝트 비용 한국 미국산 $135 vs 중국 $242</li><li>2025 "13.3조, -1.7조" · 3Q26 "4.7조 / 4,078억" · UPS 점유율 50%</li><li>거래대금 3,500억 · 변동성 78% · 펌텍 상관 0.21</li></ul>`)}
  </section>`;
  /* 질의 */
  const QA=[
- ['3분기 실적이 일회성 아닌가?','맞습니다. 4,078억 중 AMPC가 1,225억, 고객 보상금에서 품질충당을 뺀 일회성이 약 2,000억이라 경상 이익은 1~2천억입니다. 그래서 근거는 3분기 숫자가 아니라 ESS 수주 60GWh와 미국 양산 시작입니다. 4분기 감익은 이미 컨센서스(약 1,400억)에 들어 있습니다.'],
- ['PER 26배인데 비싸지 않나?','2027년 기준으론 비쌉니다. 이익이 바닥에서 올라오는 구간이라 2028년 기준 15배로 봅니다. 그 이익에 과거 평균 24배를 주면 56조, 20배만 줘도 47조로 시총 11조가 더해집니다.'],
- ['AMPC가 없어지면?','가장 큰 리스크입니다. 낙관 추정 기준으로 2028년 영업이익의 약 60%가 AMPC라, 빼면 적정 시총이 67조에서 42조로 내려갑니다. 그래도 지금보다 6조 높습니다. 현행 법에선 소재 요건만 맞추면 받을 수 있어서, 저는 비중국 양극재 조달 계약을 먼저 맺은 걸 해자로 봅니다.'],
- ['LG에너지솔루션 대신 왜 SDI? (KUVIC 탑픽은 LGES)','LGES가 앞선 건 인정합니다. 미국 양산이 먼저였고 공장 지분 100%라 세액공제를 다 가져갑니다. 그래도 SDI를 고른 이유는 가격입니다. 같은 미국 ESS 수혜인데 선행 PER이 SDI 25배, LGES 45배이고, 시총은 36조 대 74조입니다. 여기에 리튬 UPS 점유율 50%라는 데이터센터 쪽 축이 하나 더 있고, 2029년 병목이 될 비중국 LFP 양극재 계약도 먼저 맺었습니다.'],
- ['세액공제는 셀 업체 이익인가, 고객 몫인가?','상당 부분은 판가로 넘어간다고 봅니다. 그래서 낙관 추정처럼 AMPC를 영업이익에 그대로 쌓지 않고, AMPC를 빼도 적정 시총이 42조로 지금보다 높다는 점과 증권사 이익 기준 56조를 씁니다. 셀 업체가 확실히 얻는 건 물량과 가동률입니다.'],
- ['세액공제가 끝나면?','AMPC는 2029년까지 kWh당 $45, 2030년 $33.8, 2032년 $11.3으로 줄고 2033년에 끝납니다. 그대로면 중국산과 가격이 2032년쯤 역전됩니다. 그래서 2030년 전에 가동률을 올려 원가를 낮추는지가 핵심이고, 제 목표 시총은 2028년 이익까지만 씁니다.'],
- ['중국이 정말 빠지나?','올해 301조 관세가 25%로 오르고 12.5%가 더해졌으며, 세액공제 소재 요건과 8월 행정명령까지 겹쳤습니다. 국방부는 CATL을 2027년부터 거래 금지합니다. CATL의 2026년 미국향 매출은 16% 줄 것으로 추정됩니다(SOKHA).'],
- ['전고체는?','공시로 확인되는 건 울산 전고체 라인을 포함한 장기 투자 계획까지입니다. 고객·물량·가격이 없어서 목표 시총에는 넣지 않았고, 양산과 고객이 공시되면 그때 더하는 옵션으로만 둡니다.'],
- ['미국이 정권·협상 따라 중국 규제를 풀면?','관세는 협상으로 내릴 수 있지만, 세액공제 소재 요건은 법이고, 국방부 명단은 안보, 8월 행정명령은 국가비상사태 근거라 한꺼번에 풀기 어렵습니다. 실제로 9월 무역 휴전 연장에서도 ESS 관세는 그대로였습니다. 다만 다음 달 에너지부 세부 규칙이 약하게 나오면 배제 속도는 느려질 수 있어 그걸 첫 번째로 봅니다.'],
- ['유상증자 또 하나?','2025년 3월 보통주 6,876만 주에서 8,059만 주로 17% 늘었습니다. 올해는 증자 대신 삼성디스플레이 지분 5%를 4.45조에 팔아 차입금 3.6조를 갚았고, 부채비율이 78%에서 67%로 내려왔습니다. 그래도 주식 수는 계속 봅니다.'],
- ['하방 근거?','2025년 업황 바닥 때 PBR 0.8~1.0배였습니다. BPS 약 30만 9천원 기준 1배면 시총 25조로, 지금보다 11조 낮습니다. 0.8배까지 가면 20조입니다.'],
- ['전기차는 언제 돌아오나?','최대 고객 BMW 신규 프로젝트가 2028년 초라 그 전까지는 약합니다. 그래서 GM 합작법인을 단독법인으로 바꾼 게 중요합니다. 전기차 라인을 ESS로 돌릴 수 있게 됐습니다.'],
- ['SOKHA 보고서를 그대로 쓰지 않은 이유?','산업 논리는 받아들였지만 숫자는 두 가지를 고쳤습니다. 2028년 EBITDA를 지금 값으로 쓰려면 1년 할인해야 하고, 영업이익의 60%가 AMPC라 정책 리스크를 따로 봐야 합니다. 그래서 증권사 평균 이익과 과거 배수로 보수적으로 잡았습니다.'],
- ['어떻게 담고 언제 파나?','하루 거래대금 3,500억이라 펀드 1%는 하루면 됩니다. 변동성이 78%라 세 번에 나눠 담고, 분기 경상 영업이익 두 분기 연속 적자나 AMPC 요건 미달이면 팝니다. 시총이 56조에 가까워지면 2029년 이익을 다시 봅니다.'],
- ['11/24 하루 13.5% 오른 이유?','원인은 확인하지 못했습니다. 그래서 오늘 주가가 아니라 시총 기준으로 위아래를 계산했고, 급등 다음 날 추격하지 않고 나눠 담습니다.'],
- ['메자닌 하우스가 왜 대형주를?','기준은 위험 대비 기대수익입니다. 위 20조, 아래 11조로 1.8 대 1이고, 하루에 사고팔 수 있어 손절과 비중 조절이 자유롭습니다. GVA가 2차전지 부품사 메자닌을 들고 있다면 업황을 보는 눈도 같이 필요합니다.'],
+ ['3분기 실적이 일회성 아닌가?','4,078억 중 일회성 순이익이 약 2,000억인 건 맞습니다. 하지만 AMPC 1,225억은 일회성이 아니라 미국 생산이 늘수록 커지는 이익이고, 4분기 약 2천억, 내년 1조 1천억으로 늘어납니다. 4분기 감익은 일회성 기저 때문이라 컨센서스에 이미 들어 있습니다.'],
+ ['이익의 70%가 세액공제면 질이 낮은 것 아닌가?','AMPC는 법에 정해진 단가로 현금이 들어오는 이익이고, 미국에서 만든 만큼 받습니다. 다른 회사가 쉽게 못 받는 이유는 비중국 소재 요건 때문입니다. 그래서 저는 AMPC를 일회성이 아니라 미국 현지 생산이라는 진입장벽의 대가로 봅니다. 대신 2029년까지 단가가 유지되고 그 뒤 줄어든다는 점을 배수(10.7배, 증권사보다 낮음)에 반영했습니다.'],
+ ['AMPC가 없어지면?','현행 법에서 2029년까지 kWh당 45달러, 2030년부터 줄어 2033년에 끝납니다. 법 폐지보다 현실적인 리스크는 소재 요건 미달입니다. 못 맞추면 같은 틀에서 적정 시총이 42조로, 지금보다 6조 높은 수준까지 내려갑니다. 엘앤에프 양극재 계약이 그래서 중요합니다.'],
+ ['AMPC를 고객에게 깎아 주지 않나?','일부는 판가 협상에 쓰일 수 있습니다. 하지만 중국 셀이 빠지는 시장에서 미국산 비중국 셀은 공급이 수요보다 적고, 고객도 투자세액공제를 받으려면 비중국 셀이 필요합니다. 증권사들도 AMPC를 영업이익에 그대로 넣고 있고, 저는 분기별 AMPC 금액으로 확인합니다.'],
+ ['LG에너지솔루션 대신 왜 SDI?','LGES는 미국 양산이 먼저고 공장 지분이 100%라 AMPC를 많이 받는 건 맞습니다. 그래도 SDI를 고른 이유는 가격입니다. 같은 AMPC 수혜인데 선행 PER이 SDI 25배, LGES 45배이고, 시총은 36조 대 74조입니다. 여기에 리튬 UPS 점유율 50%라는 축이 하나 더 있습니다.'],
+ ['왜 EV/EBITDA 10.7배인가?','설비가 큰 회사라 감가상각과 이자 영향을 빼고 봅니다. 10.7배는 LGES가 미국 LFP 양산을 시작한 2025년 2분기의 24개월 선행 평균이고, iM 12.1배, 신한 13.4배보다 낮습니다. 그래도 적정 시총 67조는 증권사 평균 목표가 시총 65조와 비슷합니다.'],
+ ['2028년 이익을 지금 쓰는 건 이르지 않나?','미국 CAPA가 76GWh로 다 깔리는 해라 그해 이익이 정상 이익입니다. 1년 할인해도 적정 시총은 60조로 지금보다 24조 높습니다.'],
+ ['중국이 정말 빠지나?','관세는 약 41%, 세액공제 소재 요건은 소유·지배 기준이라 우회가 어렵고, 국방부는 CATL을 2027년부터 거래 금지합니다. 8월에는 이미 설치된 장비까지 금지할 수 있는 행정명령이 나왔습니다. 다음 달 에너지부 세부 규칙이 강도를 정합니다.'],
+ ['유상증자 또 하나?','2025년 3월 보통주가 17% 늘었습니다. 올해는 증자 대신 삼성디스플레이 지분 5%를 4.45조에 팔아 차입금 3.6조를 갚았고, 부채비율이 78%에서 67%로 내려왔습니다. AMPC가 현금으로 들어오기 시작하면 증설 재원도 내부에서 나옵니다.'],
+ ['하방 근거?','2025년 업황 바닥 때 PBR 0.8~1.0배였습니다. BPS 약 30만 9천원 기준 1배면 시총 25조로, 지금보다 11조 낮습니다.'],
+ ['전고체는?','고객·물량이 공시되지 않아 목표 시총에 넣지 않았습니다. 양산과 고객이 확인되면 더하는 옵션입니다.'],
+ ['어떻게 담고 언제 파나?','하루 거래대금 3,500억이라 펀드 1%는 하루면 됩니다. 변동성이 78%라 세 번에 나눠 담고, AMPC가 두 분기 연속 줄거나 소재 요건 미달이 확인되면 팝니다.'],
+ ['11/24 하루 13.5% 오른 이유?','원인은 확인하지 못했습니다. 그래서 시총 기준으로 위아래를 계산했고, 급등 다음 날 추격하지 않고 나눠 담습니다.'],
+ ['메자닌 하우스가 왜 대형주를?','기준은 위험 대비 기대수익입니다. 위 31조, 아래 11조로 2.7 대 1이고, 하루에 사고팔 수 있어 비중 조절이 자유롭습니다.'],
  ['두 종목을 같이 들어도 되나?','1년 일간 수익률 상관계수가 0.21입니다. 펌텍은 소비, 삼성SDI는 전력 인프라라 서로 다른 이유로 움직입니다.']];
  H+=`<section class="page" id="qa"><div class="page-head"><h1>예상 질의</h1><p>눌러서 답 보기 · 금액은 시총 기준</p></div>${card('','',`<div class="qa">${QA.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div>`)}</section>`;
- H+=`<section class="page" id="src"><div class="page-head"><h1>출처</h1></div>${card('','',`<ul class="def"><li>DART 삼성SDI 분기·사업보고서, 주요사항보고서(유상증자 2025.03.14, 삼성디스플레이 지분 양도 2026.08.21), 투자판단관련(GM JV 종료 2026.08.11, 미국 공급계약 2026.01.30), 장래사업계획(2026.07.02~03)</li><li>중국 배제: Utility Dive(2026.8·9, BNEF), POWER Magazine(EO 14421), Rystad Energy, Hunton, pv magazine(2026.6.10), ESS News(2026.8.27), Foley Hoag(2026.7), IRS Notice 2026-15, Fluence 10-K·AES 10-Q·Energy Vault 10-Q(SEC), SCMP, 그린포스트코리아, 코리아중앙데일리·머니투데이(2026.11.16)</li><li>KUVIC 리서치 2팀 「ESSential」(2026.09.14): 미국 ESS 수요, 중국 채택률, 45X·48E 원가, 3사 비교</li><li>S.R.S SOKHA 리서치팀 「삼성ESS, The Ideal Pick」(2026.11.10): 산업·ESS·UPS·BBU·전고체 추정과 SOTP</li><li>리포트: 교보(11/20)·SK·유안타·대신·하나(10/30) · 네이버 컨센서스(11/23)</li><li>주가·피어: Yahoo Finance(11/24)</li></ul>`)}</section>`;
+ H+=`<section class="page" id="src"><div class="page-head"><h1>출처</h1></div>${card('','',`<ul class="def"><li>DART 삼성SDI 분기·사업보고서, 주요사항보고서(유상증자 2025.03.14, 삼성디스플레이 지분 양도 2026.08.21), 투자판단관련(GM JV 종료 2026.08.11, 미국 공급계약 2026.01.30), 장래사업계획(2026.07.02~03)</li><li>중국 배제: Utility Dive(2026.8·9, BNEF), POWER Magazine(EO 14421), Rystad Energy, Hunton, pv magazine(2026.6.10), ESS News(2026.8.27), Foley Hoag(2026.7), IRS Notice 2026-15, Fluence 10-K·AES 10-Q·Energy Vault 10-Q(SEC), SCMP, 그린포스트코리아, 코리아중앙데일리·머니투데이(2026.11.16)</li><li>KUVIC 리서치 2팀 「ESSential」(2026.09.14): 미국 ESS 수요, 중국 채택률, 45X·48E 원가, 3사 비교</li><li>S.R.S SOKHA 리서치팀 「삼성ESS, The Ideal Pick」(2026.11.10): 산업·ESS·UPS·BBU·전고체 추정과 SOTP</li><li>리포트: 교보(11/20)·SK·유안타·대신·하나(10/30) · 기사로 확인: 신한(11/4 이투데이, 10/30 브릿지경제, 10/14 파이낸셜포스트), DS(10/8)·iM(9/21) 파이낸셜뉴스, 삼성(9/28 아주경제)</li><li>주가·피어: Yahoo Finance(11/24)</li></ul>`)}</section>`;
  $('#main').innerHTML=H;
  $('#foot').textContent='리서치 정리 · 투자 권유 아님';
  $('#stamp').textContent='기준 2026-11-24';
  ['vN','vP'].forEach(id=>document.getElementById(id).addEventListener('input',calc));calc();
 }
-function calc(){const v=+$('#vN').value*+$('#vP').value;$('#vOut').textContent=nf(v,1)+'조';const a=v-MC;$('#vUp').innerHTML=`지금 대비 <span class="${cls(a)}">${a>0?'+':''}${nf(a,1)}조 (${pc(a/MC*100)})</span>`}
+function calc(){const v=+$('#vN').value*+$('#vP').value+SOTP.nonop-SOTP.nd-SOTP.nci-SOTP.pref;$('#vOut').textContent=nf(v,1)+'조';const a=v-MC;$('#vUp').innerHTML=`지금 대비 <span class="${cls(a)}">${a>0?'+':''}${nf(a,1)}조 (${pc(a/MC*100)})</span>`}
 function mk(id,cfg){const el=document.getElementById(id);if(!el)return;const old=Chart.getChart(el);if(old)old.destroy();Chart.defaults.color=css('--sub');Chart.defaults.borderColor=css('--grid');Chart.defaults.font.family='Pretendard Variable, Pretendard, sans-serif';new Chart(el,cfg)}
 function draw(h){
  const c1=css('--c1'),c2=css('--c2'),c3=css('--c3'),c4=css('--c4'),c5=css('--c5'),c6=css('--c6');
@@ -262,7 +283,7 @@ function draw(h){
  const noL={...O,plugins:{legend:{display:false}}};
  if(h==='fin'){
   mk('cQ',{data:{labels:Q.map(r=>r.q),datasets:[{type:'bar',label:'매출(억)',data:Q.map(r=>r.rev),backgroundColor:c1+'aa',yAxisID:'y'},{type:'bar',label:'영업이익(억)',data:Q.map(r=>r.op),backgroundColor:Q.map(r=>r.op<0?css('--down'):c2),yAxisID:'y1'},{type:'line',label:'OPM(%)',data:Q.map(r=>+(r.op/r.rev*100).toFixed(1)),borderColor:c5,yAxisID:'y2',tension:.3}]},options:{...O,scales:{y:{beginAtZero:true},y1:{display:false},y2:{position:'right',grid:{display:false},ticks:{callback:v=>v+'%'}}}}});
-  mk('cY',{data:{labels:Y.map(r=>r.y),datasets:[{type:'bar',label:'영업이익 AMPC 포함(억)',data:Y.map(r=>r.op),backgroundColor:Y.map(r=>r.op<0?css('--down'):r.e?c1+'88':c1)},{type:'line',label:'AMPC 제외',data:Y.map(r=>r.ex??null),borderColor:c5,borderDash:[5,4],spanGaps:true},{type:'line',label:'증권사 평균',data:Y.map(r=>r.c??null),borderColor:c3,showLine:false,pointRadius:6,pointStyle:'rectRot'}]},options:O});
+  mk('cY',{data:{labels:Y.map(r=>r.y),datasets:[{type:'bar',label:'영업이익 AMPC 포함(억)',data:Y.map(r=>r.op),backgroundColor:Y.map(r=>r.op<0?css('--down'):r.e?c1+'88':c1)},{type:'line',label:'AMPC 외 영업이익',data:Y.map(r=>r.ex??null),borderColor:c5,borderDash:[5,4],spanGaps:true},{type:'line',label:'증권사 평균',data:Y.map(r=>r.c??null),borderColor:c3,showLine:false,pointRadius:6,pointStyle:'rectRot'}]},options:O});
  }
  if(h==='ess'){
   mk('cCapa',{type:'bar',data:{labels:CAPA.y,datasets:[{label:'미국 ESS CAPA',data:CAPA.v,backgroundColor:CAPA.y.map(y=>y.includes('E')?c3+'99':c3)},{type:'line',label:'미국 판매량',data:ESS.q,borderColor:c2}]},options:O});
@@ -270,8 +291,8 @@ function draw(h){
  }
  if(h==='china') mk('cCn',{type:'bar',data:{labels:['2026','2027E','2028E','2029E'],datasets:[{label:'중국 셀 채택률(%)',data:[71.2,39.8,3.9,0],backgroundColor:[css('--up'),css('--up')+'bb',css('--up')+'77',css('--up')+'44']}]},options:{...noL,scales:{y:{max:100,ticks:{callback:v=>v+'%'}}}}});
  if(h==='ups') mk('cUB',{type:'bar',data:{labels:UB.y,datasets:[{label:'UPS',data:UB.ups,backgroundColor:c1},{label:'BBU',data:UB.bbu,backgroundColor:c2}]},options:{...O,scales:{x:{stacked:true},y:{stacked:true}}}});
- if(h==='sokha'){const L=['지금','AMPC 제외','1년 할인','SOKHA Base'],V=[MC,SC.exA,SC.disc,SC.sk];mk('cSk',{type:'bar',data:{labels:L,datasets:[{data:V,backgroundColor:[c6,css('--down'),c3,c4]}]},options:{...noL,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>nf(c.raw,1)+'조'}}}}})}
- if(h==='val'){const L=['하방','지금','AMPC 없음','보수 20배','목표 24배','증권사 평균','SOKHA Base','SOKHA Bull'],V=[SC.down,MC,SC.exA,SC.c20,SC.tgt,SC.broker,SC.sk,SC.skBull];mk('cV',{type:'bar',data:{labels:L,datasets:[{data:V,backgroundColor:[css('--down'),c6,c5+'99',c3,c1,c2,c4,c4+'88']}]},options:{...noL,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>nf(c.raw,1)+'조 ('+fa(add(c.raw))+')'}}}}})}
+ if(h==='ampc') mk('cAm',{type:'bar',data:{labels:AMPCY.y,datasets:[{label:'AMPC',data:AMPCY.a,backgroundColor:c1},{label:'그 외 영업이익',data:AMPCY.o,backgroundColor:c6+'99'}]},options:{...O,scales:{x:{stacked:true},y:{stacked:true}},plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>c.dataset.label+' '+nf(c.raw,2)+'조'}}}}});
+ if(h==='val'){const L=['하방','지금','보수(순이익×24)','증권사 평균','목표 10.7배','Bull 12.8배'],V=[SC.down,MC,SC.c24,SC.broker,SC.tgt,SC.skBull];mk('cV',{type:'bar',data:{labels:L,datasets:[{data:V,backgroundColor:[css('--down'),c6,c3,c2,c1,c4]}]},options:{...noL,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>nf(c.raw,1)+'조 ('+fa(add(c.raw))+')'}}}}})}
  if(h==='px'){
   mk('cP',{type:'line',data:{labels:P.d,datasets:[{label:'삼성SDI',data:P['삼성SDI'],borderColor:c1,pointRadius:0,borderWidth:1.6,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:8}}}}});
   const base=a=>{const f=a.find(x=>x!=null);return a.map(x=>x==null?null:+(x/f*100).toFixed(1))};
